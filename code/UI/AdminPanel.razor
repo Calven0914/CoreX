@@ -1,19 +1,16 @@
 @using Sandbox;
 @using Sandbox.UI;
-
-@namespace CoreX.UI
+@inherits PanelComponent
 
 <root class="admin-panel">
     <div class="header">
         <label>CoreX Admin</label>
     </div>
-
     <div class="player-list">
         @foreach ( var conn in Connection.All )
         {
             <div class="player-row">
                 <label>@conn.DisplayName</label>
-                <label class="steamid">@conn.SteamId</label>
                 <button onclick=@(() => OnKick( conn ))>Kick</button>
             </div>
         }
@@ -26,4 +23,6 @@
         Log.Info( $"CoreX: kick button pressed for {conn.DisplayName}" );
         CoreXAdminPlugin.SendChatCommand( $"!kick {conn.DisplayName}" );
     }
+
+    protected override int BuildHash() => System.HashCode.Combine( Connection.All.Count );
 }
