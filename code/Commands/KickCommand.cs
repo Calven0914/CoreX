@@ -15,7 +15,17 @@ public class KickCommand : BaseCommand
             return;
         }
 
-        Log.Info( $"CoreX: kick command received for target '{args[0]}'" );
-        // actual kick logic will go here once we have player management set up
+        var target = args[0];
+        var reason = args.Length > 1 ? string.Join( " ", args[1..] ) : "Kicked by admin";
+
+        CoreXAdminPlugin.Logs.Write(
+            "Admin",
+            "unknown",
+            "kick",
+            target,
+            reason
+        );
+
+        Log.Info( $"CoreX: would kick '{target}' for '{reason}'" );
     }
 }
