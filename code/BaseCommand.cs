@@ -9,3 +9,4 @@ public abstract class BaseCommand
 
     public abstract void Execute( GameObject caller, string[] args );
 }
+

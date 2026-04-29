@@ -14,4 +14,14 @@ public class CoreXAdminPlugin : Component
 
         Log.Info( "CoreX Admin: initialized." );
     }
+
+    [Rpc.Host]
+    public static void SendChatCommand( string message )
+    {
+        var caller = Rpc.Caller;
+        var steamId = caller.SteamId.ToString();
+
+        Log.Info( $"CoreX: {caller.DisplayName} said: {message}" );
+        Commands.Handle( null, steamId, message );
+    }
 }
