@@ -1,0 +1,10 @@
+{
+  "SteamIdToGroup": {
+    "76561198185107671": "superadmin"
+  },
+  "GroupPermissions": {
+    "superadmin": ["*"],
+    "admin": ["corex.kick", "corex.mute", "corex.teleport"],
+    "user": []
+  }
+}
