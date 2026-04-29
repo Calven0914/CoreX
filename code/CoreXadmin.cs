@@ -1,4 +1,5 @@
 using Sandbox;
+using CoreX.UI;
 
 public class CoreXAdminPlugin : Component
 {
