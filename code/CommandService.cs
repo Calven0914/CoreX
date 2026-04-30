@@ -6,6 +6,7 @@ public class CommandService
     private readonly Dictionary<string, BaseCommand> _commands = new();
     private readonly PermissionService _permissions;
 
+    public int CommandCount => _commands.Count;
     public CommandService( PermissionService permissions )
     {
         _permissions = permissions;

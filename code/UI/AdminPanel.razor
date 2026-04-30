@@ -14,44 +14,97 @@
 
     <div class="body">
         <div class="sidebar">
-            <label class="sidebar-tab active">Players</label>
-            <label class="sidebar-tab">Bans</label>
-            <label class="sidebar-tab">Logs</label>
-            <label class="sidebar-tab">Settings</label>
+            <label class="sidebar-tab @(ActiveTab == "players" ? "active" : "")" 
+                   onclick=@(() => ActiveTab = "players")>Players</label>
+            <label class="sidebar-tab @(ActiveTab == "logs" ? "active" : "")" 
+                   onclick=@(() => ActiveTab = "logs")>Logs</label>
+            <label class="sidebar-tab @(ActiveTab == "bans" ? "active" : "")" 
+                   onclick=@(() => ActiveTab = "bans")>Bans</label>
+            <label class="sidebar-tab @(ActiveTab == "settings" ? "active" : "")" 
+                   onclick=@(() => ActiveTab = "settings")>Settings</label>
         </div>
 
         <div class="content">
-            <div class="content-header">
-                <label>CONNECTED PLAYERS (@Connection.All.Count)</label>
-            </div>
-
-            <div class="reason-bar">
-                <label class="reason-label">Reason:</label>
-                <TextEntry class="reason-input" placeholder="Enter reason..." />
-                <label class="reason-label" style="margin-left: 8px;">Duration (min):</label>
-                <TextEntry class="duration-input" placeholder="0 = perm" />
-            </div>
-
-            <div class="player-list">
-                @foreach ( var conn in Connection.All )
-                {
-                    <div class="player-row">
-                        <div class="player-info">
-                            <label class="player-name">@conn.DisplayName</label>
-                            <label class="player-steamid">@conn.SteamId</label>
+            @if ( ActiveTab == "players" )
+            {
+                <div class="content-header">
+                    <label>CONNECTED PLAYERS (@Connection.All.Count)</label>
+                </div>
+                <div class="reason-bar">
+                    <label class="reason-label">Reason:</label>
+                    <TextEntry class="reason-input" placeholder="Enter reason..." />
+                    <label class="reason-label" style="margin-left: 8px;">Duration (min):</label>
+                    <TextEntry class="duration-input" placeholder="0 = perm" />
+                </div>
+                <div class="player-list">
+                    @foreach ( var conn in Connection.All )
+                    {
+                        <div class="player-row">
+                            <div class="player-info">
+                                <label class="player-name">@conn.DisplayName</label>
+                                <label class="player-steamid">@conn.SteamId</label>
+                            </div>
+                            <div class="player-actions">
+                                <button class="btn-kick" onclick=@(() => OnKick( conn ))>KICK</button>
+                                <button class="btn-ban" onclick=@(() => OnBan( conn ))>BAN</button>
+                            </div>
                         </div>
-                        <div class="player-actions">
-                            <button class="btn-kick" onclick=@(() => OnKick( conn ))>KICK</button>
-                            <button class="btn-ban" onclick=@(() => OnBan( conn ))>BAN</button>
+                    }
+                </div>
+            }
+
+            @if ( ActiveTab == "logs" )
+            {
+                <div class="content-header">
+                    <label>ACTION LOGS (@CoreXAdminPlugin.Logs.GetAll().Count)</label>
+                </div>
+                <div class="log-list">
+                    @foreach ( var entry in CoreXAdminPlugin.Logs.GetAll().Reverse() )
+                    {
+                        <div class="log-row @entry.Action">
+                            <label class="log-time">@entry.Timestamp</label>
+                            <label class="log-admin">@entry.ExecutorName</label>
+                            <label class="log-action">@entry.Action.ToUpper()</label>
+                            <label class="log-target">@entry.Target</label>
+                            <label class="log-reason">@entry.Reason</label>
                         </div>
-                    </div>
-                }
-            </div>
+                    }
+                </div>
+            }
+
+            @if ( ActiveTab == "bans" )
+            {
+                <div class="content-header">
+                    <label>ACTIVE BANS (@CoreXAdminPlugin.Bans.GetAllActive().Count)</label>
+                </div>
+                <div class="log-list">
+                    @foreach ( var ban in CoreXAdminPlugin.Bans.GetAllActive() )
+                    {
+                        <div class="log-row ban">
+                            <label class="log-admin">@ban.DisplayName</label>
+                            <label class="log-reason">@ban.Reason</label>
+                            <label class="log-time">@ban.TimeRemaining</label>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if ( ActiveTab == "settings" )
+            {
+                <div class="content-header">
+                    <label>SETTINGS</label>
+                </div>
+                <div class="settings-body">
+                    <label class="settings-info">CoreX Admin — MVP v0.1</label>
+                    <label class="settings-info">Commands registered: @CoreXAdminPlugin.Commands.CommandCount</label>
+                </div>
+            }
         </div>
     </div>
 </root>
 
 @code {
+    private string ActiveTab = "players";
     private TextEntry _reasonEntry;
     private TextEntry _durationEntry;
 
@@ -63,7 +116,7 @@
 
     int GetDuration()
     {
-        _durationEntry ??= Panel.Descendants.OfType<TextEntry>().Skip(1).FirstOrDefault();
+        _durationEntry ??= Panel.Descendants.OfType<TextEntry>().Skip( 1 ).FirstOrDefault();
         int.TryParse( _durationEntry?.Text, out var mins );
         return mins;
     }
@@ -77,7 +130,6 @@
     void OnKick( Connection conn )
     {
         var reason = GetReason();
-        Log.Info( $"CoreX: kicking {conn.DisplayName} for '{reason}'" );
         CoreXAdminPlugin.SendChatCommand( $"!kick {conn.DisplayName} {reason}" );
     }
 
@@ -85,9 +137,8 @@
     {
         var reason = GetReason();
         var duration = GetDuration();
-        Log.Info( $"CoreX: banning {conn.DisplayName} for '{reason}' — {duration} min" );
         CoreXAdminPlugin.SendChatCommand( $"!ban {conn.DisplayName} {duration} {reason}" );
     }
 
-    protected override int BuildHash() => System.HashCode.Combine( Connection.All.Count );
+    protected override int BuildHash() => System.HashCode.Combine( ActiveTab, Connection.All.Count, CoreXAdminPlugin.Logs.GetAll().Count );
 }

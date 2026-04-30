@@ -12,7 +12,6 @@
     flex-direction: column;
     pointer-events: all;
 
-
     .header {
         background-color: #1a1a1a;
         padding: 12px 16px;
@@ -28,20 +27,20 @@
 
         .title {
             color: white;
-            font-size: 18px;
+            font-size: 22px;
             font-weight: bold;
             letter-spacing: 3px;
         }
 
         .subtitle {
             color: #666;
-            font-size: 11px;
+            font-size: 13px;
             letter-spacing: 1px;
         }
 
         .close-btn {
             color: #666;
-            font-size: 18px;
+            font-size: 20px;
             padding: 4px 10px;
             border-radius: 4px;
         }
@@ -67,8 +66,8 @@
 
         .sidebar-tab {
             padding: 12px 16px;
-            color: #aaa;        // was #888
-            font-size: 13px;
+            color: #aaa;
+            font-size: 15px;
             border-bottom: 1px solid #1a1a1a;
         }
 
@@ -96,7 +95,7 @@
 
             label {
                 color: #888;
-                font-size: 11px;
+                font-size: 13px;
                 letter-spacing: 2px;
             }
         }
@@ -108,35 +107,35 @@
             background-color: #0d0d0d;
             border-bottom: 1px solid #222;
 
-        .duration-input {
-            width: 80px;
-            background-color: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 6px 10px;
-            color: white;
-            font-size: 13px;
-            pointer-events: all;
-            margin-left: 6px;
-        }
+            .reason-label {
+                color: #888;
+                font-size: 13px;
+                margin-right: 8px;
+            }
 
-        .reason-label {
-            color: #666;
-            font-size: 12px;
-            margin-right: 8px;
-        }
+            .reason-input {
+                flex: 1;
+                background-color: #1a1a1a;
+                border: 1px solid #333;
+                border-radius: 4px;
+                padding: 6px 10px;
+                color: white;
+                font-size: 14px;
+                pointer-events: all;
+            }
 
-        .reason-input {
-        flex: 1;
-        background-color: #1a1a1a;
-        border: 3px solid #333;
-        border-radius: 4px;
-        padding: 6px 10px;
-        color: white;
-        font-size: 13px;
-        pointer-events: all;
-    }
-}
+            .duration-input {
+                width: 80px;
+                background-color: #1a1a1a;
+                border: 1px solid #333;
+                border-radius: 4px;
+                padding: 6px 10px;
+                color: white;
+                font-size: 14px;
+                pointer-events: all;
+                margin-left: 6px;
+            }
+        }
 
         .player-list {
             flex: 1;
@@ -160,12 +159,12 @@
 
                 .player-name {
                     color: white;
-                    font-size: 14px;
+                    font-size: 15px;
                 }
 
                 .player-steamid {
-                    color: white;
-                    font-size: 11px;
+                    color: #ffffff;
+                    font-size: 12px;
                 }
 
                 .player-actions {
@@ -178,7 +177,7 @@
                     border: 1px solid rgba(200, 150, 0, 0.3);
                     border-radius: 4px;
                     padding: 4px 12px;
-                    font-size: 11px;
+                    font-size: 13px;
                     margin-left: 4px;
                 }
 
@@ -192,7 +191,7 @@
                     border: 1px solid rgba(180, 30, 30, 0.3);
                     border-radius: 4px;
                     padding: 4px 12px;
-                    font-size: 11px;
+                    font-size: 13px;
                     margin-left: 4px;
                 }
 
@@ -204,6 +203,73 @@
             .player-row:hover {
                 background-color: rgba(255, 255, 255, 0.05);
                 border-color: #333;
+            }
+        }
+
+        .log-list {
+            flex: 1;
+            flex-direction: column;
+            overflow-y: scroll;
+            padding: 8px;
+
+            .log-row {
+                flex-direction: row;
+                padding: 8px 12px;
+                border-radius: 4px;
+                margin-bottom: 3px;
+                background-color: rgba(255, 255, 255, 0.03);
+                border-left: 2px solid #333;
+
+                label {
+                    font-size: 13px;
+                    color: #aaa;
+                    margin-right: 12px;
+                }
+
+                .log-time {
+                    color: #555;
+                    font-size: 12px;
+                    min-width: 150px;
+                }
+
+                .log-admin {
+                    color: #7eb8f7;
+                    min-width: 80px;
+                }
+
+                .log-action {
+                    min-width: 50px;
+                    font-weight: bold;
+                }
+
+                .log-target {
+                    color: #e8e8e8;
+                    min-width: 80px;
+                }
+
+                .log-reason {
+                    color: #666;
+                    flex: 1;
+                }
+            }
+
+            .log-row.kick {
+                border-left-color: #f0a500;
+            }
+
+            .log-row.ban {
+                border-left-color: #c0392b;
+            }
+        }
+
+        .settings-body {
+            flex-direction: column;
+            padding: 16px;
+
+            .settings-info {
+                color: #e8e8e8;
+                font-size: 14px;
+                margin-bottom: 8px;
             }
         }
     }
