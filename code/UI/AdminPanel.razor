@@ -27,7 +27,9 @@
 
             <div class="reason-bar">
                 <label class="reason-label">Reason:</label>
-                <TextEntry @ref=@_reasonEntry class="reason-input" placeholder="Enter reason..." />
+                <TextEntry class="reason-input" placeholder="Enter reason..." />
+                <label class="reason-label" style="margin-left: 8px;">Duration (min):</label>
+                <TextEntry class="duration-input" placeholder="0 = perm" />
             </div>
 
             <div class="player-list">
@@ -51,13 +53,19 @@
 
 @code {
     private TextEntry _reasonEntry;
+    private TextEntry _durationEntry;
 
     string GetReason()
     {
-        _reasonEntry ??= Panel.Descendants
-            .OfType<TextEntry>()
-            .FirstOrDefault();
+        _reasonEntry ??= Panel.Descendants.OfType<TextEntry>().FirstOrDefault();
         return _reasonEntry?.Text ?? "No reason given";
+    }
+
+    int GetDuration()
+    {
+        _durationEntry ??= Panel.Descendants.OfType<TextEntry>().Skip(1).FirstOrDefault();
+        int.TryParse( _durationEntry?.Text, out var mins );
+        return mins;
     }
 
     void Close()
@@ -69,14 +77,16 @@
     void OnKick( Connection conn )
     {
         var reason = GetReason();
-        Log.Info( $"CoreX: reason = '{reason}'" );
+        Log.Info( $"CoreX: kicking {conn.DisplayName} for '{reason}'" );
         CoreXAdminPlugin.SendChatCommand( $"!kick {conn.DisplayName} {reason}" );
     }
 
     void OnBan( Connection conn )
     {
         var reason = GetReason();
-        CoreXAdminPlugin.SendChatCommand( $"!ban {conn.DisplayName} {reason}" );
+        var duration = GetDuration();
+        Log.Info( $"CoreX: banning {conn.DisplayName} for '{reason}' — {duration} min" );
+        CoreXAdminPlugin.SendChatCommand( $"!ban {conn.DisplayName} {duration} {reason}" );
     }
 
     protected override int BuildHash() => System.HashCode.Combine( Connection.All.Count );

@@ -29,6 +29,13 @@ public class KickCommand : BaseCommand
             return;
         }
 
+        // prevent kicking the host
+        if ( conn.IsHost )
+        {
+            Log.Info( "CoreX: cannot kick the host" );
+            return;
+        }
+
         CoreXAdminPlugin.Logs.Write(
             "Admin",
             "unknown",
@@ -39,5 +46,7 @@ public class KickCommand : BaseCommand
 
         Log.Info( $"CoreX: kicking {conn.DisplayName}" );
         conn.Kick( reason );
+
+        
     }
 }

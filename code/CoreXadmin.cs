@@ -6,14 +6,16 @@ public class CoreXAdminPlugin : Component
     public static PermissionService Permissions { get; private set; }
     public static CommandService Commands { get; private set; }
     public static LogService Logs { get; private set; }
-
+    public static BanService Bans { get; private set; }
     protected override void OnStart()
     {
         Permissions = new PermissionService();
         Logs = new LogService();
         Commands = new CommandService( Permissions );
+        Bans = new BanService();
 
         Commands.Register( new KickCommand() );
+        Commands.Register( new BanCommand() );
 
         Log.Info( "CoreX Admin: initialized." );
     }

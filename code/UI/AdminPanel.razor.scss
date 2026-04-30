@@ -108,6 +108,18 @@
             background-color: #0d0d0d;
             border-bottom: 1px solid #222;
 
+        .duration-input {
+            width: 80px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 6px 10px;
+            color: white;
+            font-size: 13px;
+            pointer-events: all;
+            margin-left: 6px;
+        }
+
         .reason-label {
             color: #666;
             font-size: 12px;
