@@ -5,7 +5,7 @@ public class PermissionService
 {
     private Dictionary<string, string> _steamIdToGroup = new()
     {
-        { "76561198000000000", "superadmin" }  // replace with your Steam ID
+        { "76561198185107671", "superadmin" }  // replace with your Steam ID
     };
 
     private Dictionary<string, List<string>> _groupPermissions = new()

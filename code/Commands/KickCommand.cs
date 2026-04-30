@@ -1,4 +1,5 @@
 using Sandbox;
+using System.Linq;
 
 public class KickCommand : BaseCommand
 {
@@ -18,14 +19,25 @@ public class KickCommand : BaseCommand
         var target = args[0];
         var reason = args.Length > 1 ? string.Join( " ", args[1..] ) : "Kicked by admin";
 
+        // find the connection by name
+        var conn = Connection.All
+            .FirstOrDefault( c => c.DisplayName.ToLower().Contains( target.ToLower() ) );
+
+        if ( conn == null )
+        {
+            Log.Info( $"CoreX: player '{target}' not found" );
+            return;
+        }
+
         CoreXAdminPlugin.Logs.Write(
             "Admin",
             "unknown",
             "kick",
-            target,
+            conn.DisplayName,
             reason
         );
 
-        Log.Info( $"CoreX: would kick '{target}' for '{reason}'" );
+        Log.Info( $"CoreX: kicking {conn.DisplayName}" );
+        conn.Kick( reason );
     }
 }

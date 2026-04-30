@@ -1,27 +1,82 @@
 @using Sandbox;
 @using Sandbox.UI;
+@using System.Linq;
 @inherits PanelComponent
 
 <root class="admin-panel">
     <div class="header">
-        <label>CoreX Admin</label>
+        <div class="header-left">
+            <label class="title">COREX ADMIN</label>
+            <label class="subtitle">Server Management</label>
+        </div>
+        <label class="close-btn" onclick=@Close>✕</label>
     </div>
-    <div class="player-list">
-        @foreach ( var conn in Connection.All )
-        {
-            <div class="player-row">
-                <label>@conn.DisplayName</label>
-                <button onclick=@(() => OnKick( conn ))>Kick</button>
+
+    <div class="body">
+        <div class="sidebar">
+            <label class="sidebar-tab active">Players</label>
+            <label class="sidebar-tab">Bans</label>
+            <label class="sidebar-tab">Logs</label>
+            <label class="sidebar-tab">Settings</label>
+        </div>
+
+        <div class="content">
+            <div class="content-header">
+                <label>CONNECTED PLAYERS (@Connection.All.Count)</label>
             </div>
-        }
+
+            <div class="reason-bar">
+                <label class="reason-label">Reason:</label>
+                <TextEntry @ref=@_reasonEntry class="reason-input" placeholder="Enter reason..." />
+            </div>
+
+            <div class="player-list">
+                @foreach ( var conn in Connection.All )
+                {
+                    <div class="player-row">
+                        <div class="player-info">
+                            <label class="player-name">@conn.DisplayName</label>
+                            <label class="player-steamid">@conn.SteamId</label>
+                        </div>
+                        <div class="player-actions">
+                            <button class="btn-kick" onclick=@(() => OnKick( conn ))>KICK</button>
+                            <button class="btn-ban" onclick=@(() => OnBan( conn ))>BAN</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 </root>
 
 @code {
+    private TextEntry _reasonEntry;
+
+    string GetReason()
+    {
+        _reasonEntry ??= Panel.Descendants
+            .OfType<TextEntry>()
+            .FirstOrDefault();
+        return _reasonEntry?.Text ?? "No reason given";
+    }
+
+    void Close()
+    {
+        var toggle = Scene.GetAllComponents<AdminPanelToggle>().FirstOrDefault();
+        toggle?.ForceClose();
+    }
+
     void OnKick( Connection conn )
     {
-        Log.Info( $"CoreX: kick button pressed for {conn.DisplayName}" );
-        CoreXAdminPlugin.SendChatCommand( $"!kick {conn.DisplayName}" );
+        var reason = GetReason();
+        Log.Info( $"CoreX: reason = '{reason}'" );
+        CoreXAdminPlugin.SendChatCommand( $"!kick {conn.DisplayName} {reason}" );
+    }
+
+    void OnBan( Connection conn )
+    {
+        var reason = GetReason();
+        CoreXAdminPlugin.SendChatCommand( $"!ban {conn.DisplayName} {reason}" );
     }
 
     protected override int BuildHash() => System.HashCode.Combine( Connection.All.Count );
