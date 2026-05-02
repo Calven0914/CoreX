@@ -47,6 +47,8 @@
                             <div class="player-actions">
                                 <button class="btn-kick" onclick=@(() => OnKick( conn ))>KICK</button>
                                 <button class="btn-ban" onclick=@(() => OnBan( conn ))>BAN</button>
+                                <button class="btn-jail" onclick=@(() => OnJail( conn ))>JAIL</button>
+                                <button class="btn-unjail" onclick=@(() => OnUnjail( conn ))>UNJAIL</button>
                             </div>
                         </div>
                     }
@@ -104,7 +106,6 @@
 </root>
 
 @code {
-    private string ActiveTab = "players";
     private TextEntry _reasonEntry;
     private TextEntry _durationEntry;
 
@@ -121,10 +122,17 @@
         return mins;
     }
 
+    private string ActiveTab = "players";
+
     void Close()
     {
         var toggle = Scene.GetAllComponents<AdminPanelToggle>().FirstOrDefault();
         toggle?.ForceClose();
+    }
+
+    void OnSetJail()
+    {
+        CoreXAdminPlugin.SendChatCommand( "!setjail" );
     }
 
     void OnKick( Connection conn )
@@ -140,5 +148,17 @@
         CoreXAdminPlugin.SendChatCommand( $"!ban {conn.DisplayName} {duration} {reason}" );
     }
 
+    void OnJail( Connection conn )
+    {
+        var reason = GetReason();
+        CoreXAdminPlugin.SendChatCommand( $"!jail {conn.DisplayName} {reason}" );
+    }
+
+    void OnUnjail( Connection conn )
+    {
+        CoreXAdminPlugin.SendChatCommand( $"!unjail {conn.DisplayName}" );
+    }
+
     protected override int BuildHash() => System.HashCode.Combine( ActiveTab, Connection.All.Count, CoreXAdminPlugin.Logs.GetAll().Count );
 }
+

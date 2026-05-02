@@ -11,7 +11,7 @@ public class PermissionService
     private Dictionary<string, List<string>> _groupPermissions = new()
     {
         { "superadmin", new List<string> { "*" } },
-        { "admin", new List<string> { "corex.kick", "corex.mute", "corex.teleport" } },
+        { "admin", new List<string> { "corex.kick", "corex.mute", "corex.teleport", "corex.ban", "corex.jail","corex.unjail" } },
         { "user", new List<string>() }
     };
 
