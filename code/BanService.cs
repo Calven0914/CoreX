@@ -41,6 +41,9 @@ public class BanService
     {
         var ban = _bans.FirstOrDefault( b => b.SteamId == steamId );
         if ( ban == null ) return false;
+        
+        Log.Info( $"CoreX: ban check for {steamId} — expires {ban.ExpiresAt} — now {DateTime.UtcNow} — expired: {ban.IsExpired}" );
+        
         if ( ban.IsExpired )
         {
             _bans.Remove( ban );

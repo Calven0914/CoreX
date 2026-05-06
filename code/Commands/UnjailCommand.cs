@@ -28,10 +28,17 @@ public class UnjailCommand : BaseCommand
 
         CoreXAdminPlugin.Jail.Unjail( conn.SteamId.ToString() );
 
-        CoreXAdminPlugin.Logs.Write(
-            "Admin", "unknown", "unjail", conn.DisplayName, "Released from jail"
-        );
+        var playerObj = Game.ActiveScene.GetAllObjects( true )
+            .FirstOrDefault( o => o.Network.OwnerId == conn.Id && o.Name == conn.DisplayName );
 
+        if ( playerObj != null )
+        {
+            var enforcer = playerObj.Components.Get<JailEnforcer>( FindMode.EverythingInSelfAndDescendants );
+            if ( enforcer != null )
+                enforcer.SetJailed( false, Vector3.Zero );
+        }
+
+        CoreXAdminPlugin.Logs.Write( "Admin", "unknown", "unjail", conn.DisplayName, "Released from jail" );
         Log.Info( $"CoreX: unjailed {conn.DisplayName}" );
     }
 }

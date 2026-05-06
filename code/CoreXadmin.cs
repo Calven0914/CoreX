@@ -27,21 +27,7 @@ public class CoreXAdminPlugin : Component
 
     protected override void OnUpdate()
     {
-        if ( !Networking.IsHost ) return;
-
-        foreach ( var conn in Connection.All )
-        {
-            var steamId = conn.SteamId.ToString();
-            if ( !Jail.IsJailed( steamId ) ) continue;
-
-            var playerObj = Game.ActiveScene.GetAllObjects( true )
-                .FirstOrDefault( o => o.Network.OwnerId == conn.Id );
-
-            if ( playerObj != null )
-            {
-                playerObj.WorldPosition = Jail.GetJailPosition( steamId );
-            }
-        }
+        
     }
 
     [Rpc.Host]

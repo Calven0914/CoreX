@@ -33,9 +33,8 @@ public class JailCommand : BaseCommand
             return;
         }
 
-        // find player object
         var playerObj = Game.ActiveScene.GetAllObjects( true )
-            .FirstOrDefault( o => o.Network.OwnerId == conn.Id );
+            .FirstOrDefault( o => o.Network.OwnerId == conn.Id && o.Name == conn.DisplayName );
 
         if ( playerObj == null )
         {
@@ -43,14 +42,22 @@ public class JailCommand : BaseCommand
             return;
         }
 
-        // jail them on the spot where they currently are
         var jailPosition = playerObj.WorldPosition;
         CoreXAdminPlugin.Jail.JailAtPosition( conn.SteamId.ToString(), jailPosition );
 
-        CoreXAdminPlugin.Logs.Write(
-            "Admin", "unknown", "jail", conn.DisplayName, reason
-        );
+        // tell the client to jail themselves
+        var enforcer = playerObj.Components.Get<JailEnforcer>( FindMode.EverythingInSelfAndDescendants );
+        if ( enforcer != null )
+        {
+            enforcer.SetJailed( true, jailPosition );
+            Log.Info( $"CoreX: sent jail RPC to {conn.DisplayName}" );
+        }
+        else
+        {
+            Log.Warning( $"CoreX: JailEnforcer not found on {conn.DisplayName}'s player object" );
+        }
 
+        CoreXAdminPlugin.Logs.Write( "Admin", "unknown", "jail", conn.DisplayName, reason );
         Log.Info( $"CoreX: jailed {conn.DisplayName} at {jailPosition}" );
     }
 }
