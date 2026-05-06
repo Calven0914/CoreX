@@ -1,0 +1,293 @@
+<div align="center">
+
+# ⚙️ CoreX Admin
+
+**A modern, modular admin and developer tool system for S&box**
+
+[![S&box](https://img.shields.io/badge/S%26box-Compatible-brightgreen?style=flat-square&logo=steam)](https://sbox.game)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-0.1.0_MVP-orange?style=flat-square)]()
+[![Status](https://img.shields.io/badge/Status-Active_Development-yellow?style=flat-square)]()
+
+*Inspired by ULX — built for the modern era.*
+
+---
+
+//picture of the CoreX later
+
+</div>
+
+---
+
+## 📖 What is CoreX Admin?
+
+CoreX Admin is a reusable, extensible admin and moderation toolkit for **S&box** game servers. It provides server owners and game developers with a clean, modern admin panel for managing players, enforcing rules, and monitoring server activity — without having to build it from scratch.
+
+Think ULX for Garry's Mod, but designed from the ground up with modern software principles: clean service boundaries, a typed permission model, structured logs, and a UI that developers are proud to ship.
+
+---
+
+## ✨ Features
+
+### 🛡️ Permission System
+- Three-tier permission model: `superadmin`, `admin`, `user`
+- Superadmin wildcard bypass — grants all permissions automatically
+- SteamID-based group assignment via config
+- Easily extendable to support custom groups
+
+### ⌨️ Command System
+- Extensible command pattern — add new commands by creating a single file
+- Permission-gated execution — every command checks permissions before running
+- Automatic registration on server start
+- Built-in commands: `kick`, `ban`, `jail`, `unjail`
+
+### 🚫 Ban System
+- Timed bans with minute-based duration (0 = permanent)
+- Ban enforcement on player rejoin via `OnConnected`
+- Active ban list visible in the admin panel
+- Remaining time display (`5min`, `2h 30min`, `Permanent`)
+
+### 🔒 Jail System
+- Jail players on the spot — no setup required
+- Client-side enforcement via RPC — players cannot escape by moving
+- Per-player jail positions — each jailed player is locked independently
+- Instant unjail releases the player
+
+### 📋 Action Logging
+- Every command execution is logged with timestamp, executor, target, and reason
+- Structured `LogEntry` format — future-ready for backend/API ingestion
+- Filterable log viewer in the admin panel
+- JSON lines format for easy parsing
+
+### 🖥️ Admin Panel UI
+- **Tab** key to open/close (configurable)
+- Centered, ULX-inspired layout with sidebar navigation
+- Tabs: **Players**, **Logs**, **Bans**, **Settings**
+- Reason and duration input fields
+- Mouse cursor unlocks automatically when panel opens
+- Player movement suppressed while panel is open
+
+---
+
+## 🚀 Installation
+
+### Requirements
+- S&box (latest version)
+- A game project with a Player Controller setup
+
+### Steps
+
+**1. Clone or download CoreX Admin**
+```bash
+git clone https://github.com/Calven0914/CoreX.git
+```
+
+**2. Copy the addon into your S&box addons folder**
+```
+C:\Users\<you>\Documents\s&box projects\
+```
+
+**3. Open S&box editor and load your project**
+
+**4. Add CoreX Admin objects to your scene:**
+- Create an empty GameObject → name it `CoreX Admin`
+- Add component: `CoreXAdminPlugin`
+- Add component: `AdminPanelToggle`
+- Create a `ScreenPanel` GameObject → name it `CoreX UI`
+- Add component: `AdminPanel` to `CoreX UI`
+- Disable `CoreX UI` by default (panel opens via Tab)
+
+**5. Configure your SteamID as superadmin**
+
+Open `Code/PermissionService.cs` and add your SteamID:
+```csharp
+private Dictionary<string, string> _steamIdToGroup = new()
+{
+    { "YOUR_STEAM_ID_64_HERE", "superadmin" }
+};
+```
+
+Find your SteamID64 at [steamid.io](https://steamid.io)
+
+**6. Hit Play and press Tab to open the admin panel**
+
+---
+
+## 🎮 Usage
+
+### Opening the Admin Panel
+Press **Tab** while in-game to open/close the CoreX Admin panel.
+
+### Player Management
+| Button | Action |
+|--------|--------|
+| `KICK` | Kicks the player with the specified reason |
+| `BAN` | Bans the player for the specified duration (minutes) |
+| `JAIL` | Locks the player in place at their current position |
+| `FREE` | Releases a jailed player |
+
+### Reason & Duration
+- Type a **reason** in the Reason field before clicking any action button
+- Type a **duration in minutes** in the Duration field for bans (`0` = permanent)
+
+### Tabs
+| Tab | Description |
+|-----|-------------|
+| Players | Connected player list with action buttons |
+| Logs | All admin actions with timestamps |
+| Bans | Currently active bans with time remaining |
+| Settings | CoreX version and system info |
+
+---
+
+## 🔧 Adding Custom Commands
+
+Creating a new command is as simple as adding one file. Here's an example `!slay` command:
+
+```csharp
+using Sandbox;
+using System.Linq;
+
+public class SlayCommand : BaseCommand
+{
+    public override string Name => "slay";
+    public override string RequiredPermission => "corex.slay";
+    public override string Usage => "!slay <playername>";
+
+    public override void Execute( GameObject caller, string[] args )
+    {
+        if ( args.Length == 0 )
+        {
+            Log.Info( "Usage: " + Usage );
+            return;
+        }
+
+        var target = args[0];
+        var conn = Connection.All
+            .FirstOrDefault( c => c.DisplayName.ToLower().Contains( target.ToLower() ) );
+
+        if ( conn == null ) return;
+
+        // your slay logic here
+
+        CoreXAdminPlugin.Logs.Write( "Admin", "unknown", "slay", conn.DisplayName, "Slayed by admin" );
+        Log.Info( $"CoreX: slayed {conn.DisplayName}" );
+    }
+}
+```
+
+Then register it in `CoreXadmin.cs`:
+```csharp
+Commands.Register( new SlayCommand() );
+```
+
+That's it. No other files need to be touched.
+
+---
+
+## 🏗️ Architecture
+
+```
+CoreX Admin
+├── Services/
+│   ├── PermissionService    — SteamID → group → permission checks
+│   ├── CommandService       — command registration, parsing, routing
+│   ├── LogService           — structured action logging
+│   ├── BanService           — timed ban storage and expiry
+│   └── JailService          — per-player jail position tracking
+├── Commands/
+│   ├── BaseCommand          — abstract base for all commands
+│   ├── KickCommand
+│   ├── BanCommand
+│   ├── JailCommand
+│   └── UnjailCommand
+├── UI/
+│   ├── AdminPanel.razor     — main admin panel UI
+│   ├── AdminPanel.razor.scss
+│   └── AdminPanelToggle.cs  — Tab key toggle + mouse handling
+└── CoreXAdminPlugin.cs      — entry point, service initialization
+```
+
+---
+
+## 🔌 Integration API
+
+Other developers can integrate CoreX Admin into their games:
+
+```csharp
+// Check if a player has a permission
+bool canKick = CoreXAdminPlugin.Permissions.HasPermission( steamId, "corex.kick" );
+
+// Check if a player is banned
+bool isBanned = CoreXAdminPlugin.Bans.IsBanned( steamId );
+
+// Check if a player is jailed
+bool isJailed = CoreXAdminPlugin.Jail.IsJailed( steamId );
+
+// Write a custom log entry
+CoreXAdminPlugin.Logs.Write( executorName, executorSteamId, "customaction", targetName, reason );
+
+// Execute a command programmatically
+CoreXAdminPlugin.SendChatCommand( "!kick PlayerName Reason" );
+```
+
+---
+
+## 🗺️ Roadmap
+
+### v0.1 — MVP ✅
+- [x] Permission system
+- [x] Command system
+- [x] Kick, Ban, Jail commands
+- [x] Action logging
+- [x] Admin panel UI
+- [x] Timed bans
+
+### v0.2 — Planned
+- [ ] Gag/ungag command
+- [ ] God mode (`!god`)
+- [ ] HP command (`!hp`)
+- [ ] Teleport commands (`!goto`, `!bring`)
+- [ ] Slay command
+- [ ] Persist bans to file
+
+### v0.3 — Future
+- [ ] Web dashboard (SaaS)
+- [ ] Cross-server ban sync
+- [ ] Player analytics
+- [ ] REST API for backend integration
+- [ ] Plugin/module system for third-party commands
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome. Please open an issue first to discuss what you'd like to change.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/your-feature`)
+3. Commit your changes (`git commit -m "feat: add your feature"`)
+4. Push to the branch (`git push origin feat/your-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+## 👤 Author
+
+**Calven** — [@Calven0914](https://github.com/Calven0914)
+
+Built with ☕ and a lot of S&box API debugging.
+
+---
+
+<div align="center">
+
+*If CoreX Admin saves you time, consider giving it a ⭐ on GitHub.*
+
+</div>
